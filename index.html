@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIA Inventaris Lab Kedokteran - Universitas Imelda Medan</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --uim-green: #15803d;
+            --uim-green-dark: #0f5132;
+            --uim-red: #dc2626;
+            --uim-gold: #eab308;
+            --primary-blue: #0284c7;
+            --primary-dark: #0f172a;
+            --sidebar-width: 260px;
+            --bg-light: #f8fafc;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-light);
+            color: #334155;
+            overflow-x: hidden;
+        }
+
+        /* Top Bar Styling */
+        .top-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+        }
+
+        .brand-logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .uim-logo-svg {
+            width: 48px;
+            height: 48px;
+            filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.3));
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: #ffffff;
+            border-right: 1px solid #e2e8f0;
+            position: fixed;
+            top: 70px;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            padding: 1.25rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar .nav-link {
+            color: #64748b;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-left: 4px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: var(--uim-green);
+            background: #f0fdf4;
+            border-left-color: var(--uim-green);
+        }
+
+        .sidebar .nav-link i {
+            font-size: 1.2rem;
+        }
+
+        /* Main Content Styling */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            min-height: calc(100vh - 70px);
+        }
+
+        /* Card Widgets */
+        .stat-card {
+            border: none;
+            border-radius: 14px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            background: #ffffff;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
+
+        .icon-shape {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        /* Status Badges */
+        .badge-baik {
+            background-color: #dcfce7;
+            color: #15803d;
+            font-weight: 600;
+            padding: 0.35em 0.8em;
+        }
+
+        .badge-rusak {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            font-weight: 600;
+            padding: 0.35em 0.8em;
+        }
+
+        .badge-pending {
+            background-color: #fef3c7;
+            color: #b45309;
+            font-weight: 600;
+        }
+
+        .badge-approved {
+            background-color: #d1fae5;
+            color: #047857;
+            font-weight: 600;
+        }
+
+        /* Control Panel Header */
+        .role-pill {
+            padding: 0.35rem 0.85rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* Custom Table Styling */
+        .custom-table {
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+
+        .custom-table thead {
+            background-color: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Internal Control Banner */
+        .ic-banner {
+            background: linear-gradient(90deg, #eff6ff 0%, #e0f2fe 100%);
+            border-left: 5px solid #0284c7;
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+        }
+
+        /* Code block styling */
+        pre code {
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+        }
+
+        /* Printable Report Layout */
+        @media print {
+            .sidebar, .top-header, .no-print {
+                display: none !important;
+            }
+            .main-content {
+                margin-left: 0 !important;
+                padding: 0 !important;
+            }
+            .card {
+                border: none !important;
+                box-shadow: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP HEADER NAVBAR -->
+    <header class="top-header d-flex justify-content-between align-items-center">
+        <div class="brand-logo-container">
+            <!-- FK UIM Vector Logo (Exact matching representation) -->
+            <svg class="uim-logo-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <!-- Outer Ring Green -->
+                <circle cx="100" cy="100" r="96" fill="#15803d" stroke="#ffffff" stroke-width="3"/>
+                <!-- Outer Ring Text Path -->
+                <path id="textPathOuter" d="M 25,100 A 75,75 0 1,1 175,100" fill="none"/>
+                <text font-family="Arial, sans-serif" font-weight="bold" font-size="15" fill="#ffffff" text-anchor="middle">
+                    <textPath href="#textPathOuter" startOffset="50%">FAKULTAS KEDOKTERAN</textPath>
+                </text>
+                <path id="textPathBottom" d="M 175,100 A 75,75 0 0,1 25,100" fill="none"/>
+                <text font-family="Arial, sans-serif" font-weight="bold" font-size="16" fill="#ffffff" text-anchor="middle">
+                    <textPath href="#textPathBottom" startOffset="50%">U I M</textPath>
+                </text>
+                
+                <!-- Red Circle Inner -->
+                <circle cx="100" cy="100" r="70" fill="#dc2626" stroke="#ffffff" stroke-width="2"/>
+                <!-- Gold Star Dots -->
+                <circle cx="45" cy="135" r="4" fill="#eab308"/>
+                <circle cx="155" cy="135" r="4" fill="#eab308"/>
+
+                <!-- Yellow Monogram Center -->
+                <circle cx="100" cy="100" r="50" fill="#facc15"/>
+                <!-- Insignia Flame & Symbol -->
+                <path d="M100 60 C85 80, 85 95, 100 115 C115 95, 115 80, 100 60 Z" fill="#dc2626"/>
+                <path d="M100 68 C92 82, 92 92, 100 105 C108 92, 108 82, 100 68 Z" fill="#eab308"/>
+                <text x="100" y="142" font-family="Arial, sans-serif" font-weight="900" font-size="22" fill="#15803d" text-anchor="middle">UIM</text>
+            </svg>
+            <div>
+                <h5 class="mb-0 fw-bold text-white">UNIVERSITAS IMELDA MEDAN</h5>
+                <small class="text-white-50" style="font-size: 0.8rem;">Sistem Informasi Akuntansi Inventaris Lab Kedokteran</small>
+            </div>
+        </div>
+
+        <!-- Role Switcher & User Control (Internal Control Simulation) -->
+        <div class="d-flex align-items-center gap-3">
+            <div class="bg-dark bg-opacity-50 p-2 rounded-3 border border-secondary d-flex align-items-center gap-2">
+                <small class="text-light fw-medium d-none d-md-inline">Simulasi Mode Access Control:</small>
+                <select id="roleSelector" class="form-select form-select-sm bg-primary text-white border-0 fw-bold" style="cursor: pointer; width: auto;" onchange="switchRole(this.value)">
+                    <option value="Admin Lab">🟢 Login: Admin Lab (Abdul Latif)</option>
+                    <option value="Kepala Lab">🔵 Login: Kepala Lab (Dr. Dosen, Sp.PK)</option>
+                </select>
+            </div>
+
+            <div class="dropdown">
+                <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-person-circle fs-6"></i>
+                    <span id="activeUserName">Abdul Latif</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow">
+                    <li><h6 class="dropdown-header">Informasi Pengguna</h6></li>
+                    <li><a class="dropdown-item disabled" href="#"><i class="bi bi-shield-lock me-2"></i>Role: <span id="activeRoleLabel">Admin Lab</span></a></li>
+                    <li><a class="dropdown-item disabled" href="#"><i class="bi bi-card-heading me-2"></i>NIM: 2357402050</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="javascript:void(0)" onclick="resetDemoData()"><i class="bi bi-arrow-counterclockwise me-2"></i>Reset Data Demo</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="sidebar">
+        <div class="px-3 mb-3">
+            <span class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem; letter-spacing: 1px;">Navigasi Utama</span>
+        </div>
+        <nav class="nav flex-column">
+            <a class="nav-link active" id="link-dashboard" href="javascript:void(0)" onclick="showView('dashboard')">
+                <i class="bi bi-grid-1x2-fill"></i> Dashboard SIA
+            </a>
+            <a class="nav-link" id="link-alat" href="javascript:void(0)" onclick="showView('alat')">
+                <i class="bi bi-box-seam-fill"></i> Data Master Alat
+            </a>
+            <a class="nav-link" id="link-kondisi" href="javascript:void(0)" onclick="showView('kondisi')">
+                <i class="bi bi-clipboard2-pulse-fill"></i> Inventarisir & Kondisi
+            </a>
+            <a class="nav-link" id="link-laporan" href="javascript:void(0)" onclick="showView('laporan')">
+                <i class="bi bi-file-earmark-text-fill"></i> Laporan Nilai Aset
+                <span id="pendingBadgeNav" class="badge bg-warning text-dark ms-auto rounded-pill" title="Menunggu Validasi">1</span>
+            </a>
+            <a class="nav-link" id="link-user" href="javascript:void(0)" onclick="showView('user')">
+                <i class="bi bi-people-fill"></i> Manajemen User
+            </a>
+            
+            <div class="px-3 my-3">
+                <span class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem; letter-spacing: 1px;">Berkas Kode & Database TA</span>
+            </div>
+            <a class="nav-link text-success fw-bold" id="link-source" href="javascript:void(0)" onclick="showView('source')">
+                <i class="bi bi-filetype-sql"></i> Database SQL & PHP Code
+            </a>
+        </nav>
+
+        <div class="position-absolute bottom-0 start-0 end-0 p-3 bg-light border-top text-center" style="font-size: 0.75rem; color: #64748b;">
+            <i class="bi bi-mortarboard-fill me-1 text-success"></i> <strong>Tugas Akhir D3 Ka.</strong><br>
+            Abdul Latif - NIM 2357402050<br>
+            Fakultas Kedokteran UIM
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="main-content">
+
+        <!-- INTERNAL CONTROL AUDIT ALERT BANNER -->
+        <div class="ic-banner mb-4 d-flex align-items-center justify-content-between shadow-sm">
+            <div class="d-flex align-items-center gap-3">
+                <div class="bg-primary text-white rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                    <i class="bi bi-shield-check fs-5"></i>
+                </div>
+                <div>
+                    <h6 class="mb-0 fw-bold text-dark">Sistem Pengendalian Internal Berjalankan (Segregation of Duties)</h6>
+                    <small class="text-muted" id="icBannerText">
+                        Anda saat ini bertindak sebagai <strong class="text-primary">Admin Lab</strong>. Anda berhak menginput data alat & kondisi fisik, tetapi Laporan Aset membutuhkan validasi akhir oleh <strong class="text-success">Kepala Lab</strong>.
+                    </small>
+                </div>
+            </div>
+            <span class="badge bg-primary rounded-pill px-3 py-2" id="roleBadgeDisplay">Role: Admin Lab</span>
+        </div>
+
+        <!-- ================= VIEW 1: DASHBOARD ================= -->
+        <div id="view-dashboard" class="app-view">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h4 class="fw-bold mb-1">Dashboard Ikhtisar Inventaris</h4>
+                    <p class="text-muted small mb-0">Ringkasan real-time nilai aset dan kondisi fisik alat peraga medis/manikin.</p>
+                </div>
+                <button class="btn btn-outline-primary btn-sm rounded-pill" onclick="refreshDashboard()">
+                    <i class="bi bi-arrow-clockwise me-1"></i> Refresh Data
+                </button>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="card stat-card p-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <span class="text-muted small fw-semibold">Total Unit Alat</span>
+                                <h3 class="fw-bold mt-1 mb-0" id="dashTotalAlat">0</h3>
+                                <small class="text-success fw-semibold"><i class="bi bi-box-seam me-1"></i>Master Alat Lab</small>
+                            </div>
+                            <div class="icon-shape bg-primary bg-opacity-10 text-primary">
+                                <i class="bi bi-boxes"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="card stat-card p-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <span class="text-muted small fw-semibold">Total Nilai Aset</span>
+                                <h4 class="fw-bold mt-1 mb-0 text-success" id="dashTotalNilai">Rp 0</h4>
+                                <small class="text-muted" style="font-size: 0.75rem;">SUM(harga_satuan)</small>
+                            </div>
+                            <div class="icon-shape bg-success bg-opacity-10 text-success">
+                                <i class="bi bi-currency-dollar"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="card stat-card p-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <span class="text-muted small fw-semibold">Kondisi Baik</span>
+                                <h3 class="fw-bold mt-1 mb-0 text-success" id="dashKondisiBaik">0</h3>
+                                <small class="text-success fw-semibold" id="dashPercentBaik">0% Siap Pakai</small>
+                            </div>
+                            <div class="icon-shape bg-success bg-opacity-10 text-success">
+                                <i class="bi bi-check-circle-fill"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="card stat-card p-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <span class="text-muted small fw-semibold">Kondisi Rusak</span>
+                                <h3 class="fw-bold mt-1 mb-0 text-danger" id="dashKondisiRusak">0</h3>
+                                <small class="text-danger fw-semibold"><i class="bi bi-exclamation-triangle-fill me-1"></i>Butuh Perbaikan</small>
+                            </div>
+                            <div class="icon-shape bg-danger bg-opacity-10 text-danger">
+                                <i class="bi bi-x-circle-fill"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart & Detail Section -->
+            <div class="row g-4">
+                <div class="col-12 col-lg-7">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="fw-bold mb-0"><i class="bi bi-pie-chart-fill me-2 text-primary"></i>Proporsi Kondisi Alat Fisik (Baik vs Rusak)</h6>
+                            <span class="badge bg-light text-dark border">Chart.js Visual</span>
+                        </div>
+                        <div style="height: 260px;" class="d-flex justify-content-center align-items-center">
+                            <canvas id="chartKondisi"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-lg-5">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+                        <h6 class="fw-bold mb-3"><i class="bi bi-clock-history me-2 text-primary"></i>Status Pengendalian Internal Laporan</h6>
+                        <div class="p-3 bg-light rounded-3 mb-3 border">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-semibold small">Laporan Periode Terbaru:</span>
+                                <span class="badge badge-pending" id="dashReportStatus">Menunggu Validasi</span>
+                            </div>
+                            <small class="text-muted d-block mb-2">Laporan Nilai Aset Periode: <strong id="dashReportPeriode">Agustus 2026</strong></small>
+                            <div class="progress mb-2" style="height: 6px;">
+                                <div id="dashReportProgress" class="progress-bar bg-warning progress-bar-striped progress-bar-animated" style="width: 50%"></div>
+                            </div>
+                            <div class="d-flex justify-content-between text-muted" style="font-size: 0.75rem;">
+                                <span>Input: Admin Lab</span>
+                                <span>Otorisasi: Kepala Lab</span>
+                            </div>
+                        </div>
+
+                        <div id="dashActionBox" class="alert alert-warning mb-0 border-0 d-flex align-items-center gap-2">
+                            <i class="bi bi-info-circle-fill fs-5"></i>
+                            <span class="small" id="dashActionText">Harap beritahu Kepala Lab untuk meninjau dan memvalidasi laporan nilai aset periode berjalan.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= VIEW 2: DATA MASTER ALAT ================= -->
+        <div id="view-alat" class="app-view d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h4 class="fw-bold mb-1">Data Master Alat Laboratorium</h4>
+                    <p class="text-muted small mb-0">Kelola inventaris alat peraga medis, manikin, dan estimasi nilai per unit.</p>
+                </div>
+                <button id="btnTambahAlat" class="btn btn-success rounded-pill px-3" onclick="openModalTambahAlat()">
+                    <i class="bi bi-plus-lg me-1"></i> Tambah Alat Baru
+                </button>
+            </div>
+
+            <!-- Table Card -->
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
+                    <div class="input-group input-group-sm" style="max-width: 300px;">
+                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
+                        <input type="text" id="searchAlatInput" class="form-select-sm form-control bg-light border-start-0" placeholder="Cari nama / kode alat..." onkeyup="renderAlatTable()">
+                    </div>
+                    <span class="text-muted small">Total: <strong id="countAlatText">0</strong> Data</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 custom-table">
+                        <thead>
+                            <tr>
+                                <th class="ps-3">ID Alat</th>
+                                <th>Kode Alat</th>
+                                <th>Nama Alat Peraga / Manikin</th>
+                                <th>Asal Negara</th>
+                                <th class="text-end">Harga Satuan (Rp)</th>
+                                <th class="text-center no-print">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableAlatBody">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= VIEW 3: INVENTARISIR & KONDISI ================= -->
+        <div id="view-kondisi" class="app-view d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h4 class="fw-bold mb-1">Pengecekan & Kondisi Fisik Alat</h4>
+                    <p class="text-muted small mb-0">Pencatatan pemeriksaan fisik alat berkala dan jejak audit (audit trail) histori alat.</p>
+                </div>
+                <button id="btnTambahKondisi" class="btn btn-primary rounded-pill px-3" onclick="openModalTambahKondisi()">
+                    <i class="bi bi-clipboard-plus me-1"></i> Input Hasil Cek Fisik
+                </button>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                <div class="card-header bg-white p-3 border-bottom">
+                    <h6 class="fw-bold mb-0"><i class="bi bi-clock-history me-2 text-primary"></i>Riwayat Pemeriksaan Alat (Audit Trail History)</h6>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 custom-table">
+                        <thead>
+                            <tr>
+                                <th class="ps-3">No</th>
+                                <th>Tanggal Cek</th>
+                                <th>Nama Alat</th>
+                                <th>Kondisi Fisik</th>
+                                <th>Keterangan / Catatan</th>
+                                <th>Petugas (Petugas Input)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableKondisiBody">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= VIEW 4: LAPORAN NILAI ASET & VALIDASI ================= -->
+        <div id="view-laporan" class="app-view d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+                <div>
+                    <h4 class="fw-bold mb-1">Laporan Nilai Aset Laboratorium</h4>
+                    <p class="text-muted small mb-0">Laporan real-time nilai aset dan fitur validasi otorisasi bertingkat Kepala Lab.</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-secondary rounded-pill px-3" onclick="window.print()">
+                        <i class="bi bi-printer me-1"></i> Cetak / Export PDF
+                    </button>
+                    <button id="btnValidasiKepalaLab" class="btn btn-success rounded-pill px-3 d-none" onclick="validasiLaporanAlert()">
+                        <i class="bi bi-patch-check-fill me-1"></i> Validasi & Approve Laporan
+                    </button>
+                </div>
+            </div>
+
+            <!-- PRINT HEADER (ONLY VISIBLE WHEN PRINTING) -->
+            <div class="d-none d-print-block text-center mb-4 border-bottom pb-3">
+                <h4 class="fw-bold mb-0">FAKULTAS KEDOKTERAN - UNIVERSITAS IMELDA MEDAN</h4>
+                <p class="mb-0">LAPORAN REKAPITULASI INVENTARIS & NILAI ASET LABORATORIUM</p>
+                <small class="text-muted">Jl. H.B. Titi Kuning / Jl. Pasundan No.24, Medan, Sumatera Utara</small>
+            </div>
+
+            <!-- Report Card -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+                    <div>
+                        <h5 class="fw-bold mb-1">Rekapitulasi Nilai Aset Manikin & Alat Peraga</h5>
+                        <small class="text-muted">Periode Laporan: <strong class="text-dark" id="laporanPeriodeText">Agustus 2026</strong></small>
+                    </div>
+                    <div class="text-end">
+                        <small class="text-muted d-block">Status Validasi Otorisasi:</small>
+                        <span id="badgeStatusValidasiLaporan" class="badge badge-pending px-3 py-2 fs-6">Menunggu Validasi</span>
+                    </div>
+                </div>
+
+                <!-- Report Summary Stats -->
+                <div class="row g-3 mb-4 text-center">
+                    <div class="col-4">
+                        <div class="p-3 bg-light rounded-3">
+                            <span class="text-muted small d-block">Total Jumlah Alat</span>
+                            <strong class="fs-4 text-dark" id="laporanCountAlat">0 Unit</strong>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-3 bg-light rounded-3">
+                            <span class="text-muted small d-block">Total Nilai Akumulasi Aset</span>
+                            <strong class="fs-4 text-success" id="laporanTotalNilai">Rp 0</strong>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-3 bg-light rounded-3">
+                            <span class="text-muted small d-block">Kondisi Alat Sempurna</span>
+                            <strong class="fs-4 text-primary" id="laporanKondisiBaik">0 Unit</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <h6 class="fw-bold mb-3">Rincian Daftar Alat Peraga Medis</h6>
+                <div class="table-responsive mb-4">
+                    <table class="table table-bordered align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>No</th>
+                                <th>Kode Alat</th>
+                                <th>Nama Alat</th>
+                                <th>Asal Negara</th>
+                                <th>Kondisi Terakhir</th>
+                                <th class="text-end">Harga Satuan (Rp)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableLaporanDetail">
+                            <!-- Populated via JS -->
+                        </tbody>
+                        <tfoot>
+                            <tr class="fw-bold bg-light">
+                                <td colspan="5" class="text-end">TOTAL NILAI ASET:</td>
+                                <td class="text-end text-success fs-6" id="footerTotalNilai">Rp 0</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- SIGNATURE SECTION FOR INTERNAL CONTROL -->
+                <div class="row mt-5 pt-3 text-center">
+                    <div class="col-6">
+                        <p class="mb-1 text-muted small">Dibuat Oleh (Petugas Lab),</p>
+                        <div style="height: 60px;" class="d-flex align-items-center justify-content-center">
+                            <span class="text-muted fst-italic">[Tanda Tangan Digital Admin]</span>
+                        </div>
+                        <strong class="d-block border-top pt-2 mx-auto" style="width: 200px;">Abdul Latif</strong>
+                        <small class="text-muted">NIM: 2357402050 (Admin Lab)</small>
+                    </div>
+
+                    <div class="col-6">
+                        <p class="mb-1 text-muted small">Disetujui & Divalidasi Oleh,</p>
+                        <div style="height: 60px;" class="d-flex align-items-center justify-content-center">
+                            <span id="signatureKepalaLab" class="badge bg-success-subtle text-success border border-success p-2">
+                                <i class="bi bi-clock me-1"></i> Belum Divalidasi
+                            </span>
+                        </div>
+                        <strong class="d-block border-top pt-2 mx-auto" style="width: 200px;">Dr. Dosen, Sp.PK</strong>
+                        <small class="text-muted">Kepala Laboratorium FK UIM</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= VIEW 5: MANAJEMEN USER ================= -->
+        <div id="view-user" class="app-view d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h4 class="fw-bold mb-1">Manajemen Pengguna & Otorisasi Hak Akses</h4>
+                    <p class="text-muted small mb-0">Daftar pengguna terdaftar di dalam database `user` dan `login`.</p>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 custom-table">
+                        <thead>
+                            <tr>
+                                <th class="ps-3">ID User</th>
+                                <th>Nama Lengkap</th>
+                                <th>Username</th>
+                                <th>No. Telp</th>
+                                <th>Role / Hak Akses</th>
+                                <th>Tanggal Dibuat</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableUserBody">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= VIEW 6: SOURCE CODE & DATABASE SQL ================= -->
+        <div id="view-source" class="app-view d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h4 class="fw-bold mb-1"><i class="bi bi-database-fill-gear me-2 text-success"></i>Database SQL & Berkas PHP Native</h4>
+                    <p class="text-muted small mb-0">Salin skrip SQL `db_inventaris_lab.sql` dan struktur file PHP PDO untuk Tugas Akhir XAMPP Anda.</p>
+                </div>
+            </div>
+
+            <ul class="nav nav-tabs mb-3" id="codeTabs" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active fw-semibold" id="sql-tab" data-bs-toggle="tab" data-bs-target="#tab-sql"><i class="bi bi-filetype-sql me-1"></i> db_inventaris_lab.sql</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link fw-semibold" id="php-db-tab" data-bs-toggle="tab" data-bs-target="#tab-php-db"><i class="bi bi-filetype-php me-1"></i> config/database.php</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link fw-semibold" id="php-login-tab" data-bs-toggle="tab" data-bs-target="#tab-php-login"><i class="bi bi-filetype-php me-1"></i> auth/proses_login.php</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link fw-semibold" id="readme-tab" data-bs-toggle="tab" data-bs-target="#tab-readme"><i class="bi bi-book-fill me-1"></i> README & Petunjuk Sidang</button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="codeTabsContent">
+                <!-- TAB 1: SQL EXPORT -->
+                <div class="tab-pane fade show active" id="tab-sql">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-dark text-light">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <small class="text-success"><i class="bi bi-check2-circle me-1"></i>Siap Import ke phpMyAdmin</small>
+                            <button class="btn btn-sm btn-outline-light" onclick="copyToClipboard('sqlCodeBlock')"><i class="bi bi-clipboard me-1"></i> Copy SQL</button>
+                        </div>
+                        <pre class="mb-0 text-light" style="max-height: 450px; overflow-y: auto;"><code id="sqlCodeBlock">-- ============================================================
+-- DATABASE SCHEMA: db_inventaris_lab
+-- Tugas Akhir: Abdul Latif (NIM 2357402050)
+-- Program Studi: D-III Komputerisasi Akuntansi
+-- Institusi: Universitas Imelda Medan (Fakultas Kedokteran)
+-- ============================================================
+
+CREATE DATABASE IF NOT EXISTS `db_inventaris_lab` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `db_inventaris_lab`;
+
+-- 1. TABEL USER
+CREATE TABLE IF NOT EXISTS `user` (
+  `id_user` INT AUTO_INCREMENT PRIMARY KEY,
+  `nama_lengkap` VARCHAR(255) NOT NULL,
+  `email` VARCHAR(255) UNIQUE NOT NULL,
+  `no_telp` VARCHAR(20) DEFAULT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 2. TABEL LOGIN
+CREATE TABLE IF NOT EXISTS `login` (
+  `id_login` INT AUTO_INCREMENT PRIMARY KEY,
+  `id_user` INT NOT NULL,
+  `username` VARCHAR(255) UNIQUE NOT NULL,
+  `password` VARCHAR(255) NOT NULL,
+  `role` ENUM('Admin Lab', 'Kepala Lab') NOT NULL,
+  FOREIGN KEY (`id_user`) REFERENCES `user`(`id_user`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 3. TABEL DATA MASTER ALAT
+CREATE TABLE IF NOT EXISTS `data_master_alat` (
+  `id_alat` VARCHAR(50) PRIMARY KEY,
+  `nama_alat` VARCHAR(255) NOT NULL,
+  `kode_alat` VARCHAR(50) NOT NULL,
+  `asal_negara` VARCHAR(100) NOT NULL,
+  `harga_satuan` DECIMAL(15,2) NOT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 4. TABEL KONDISI & INVENTARISIR (AUDIT TRAIL)
+CREATE TABLE IF NOT EXISTS `kondisi_inventarisir` (
+  `id_inventaris` INT AUTO_INCREMENT PRIMARY KEY,
+  `id_alat` VARCHAR(50) NOT NULL,
+  `tanggal_cek` DATE NOT NULL,
+  `kondisi` ENUM('Baik', 'Rusak') NOT NULL,
+  `keterangan` TEXT,
+  `id_user` INT NOT NULL,
+  FOREIGN KEY (`id_alat`) REFERENCES `data_master_alat`(`id_alat`) ON DELETE CASCADE,
+  FOREIGN KEY (`id_user`) REFERENCES `user`(`id_user`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 5. TABEL LAPORAN NILAI ASET
+CREATE TABLE IF NOT EXISTS `laporan_nilai_aset` (
+  `id_laporan` INT AUTO_INCREMENT PRIMARY KEY,
+  `periode` VARCHAR(100) NOT NULL,
+  `total_jumlah_alat` INT NOT NULL,
+  `total_nilai_aset` DECIMAL(15,2) NOT NULL,
+  `status_validasi` ENUM('Menunggu Validasi', 'Divalidasi Kepala Lab') DEFAULT 'Menunggu Validasi',
+  `divalidasi_oleh` INT DEFAULT NULL,
+  `tanggal_validasi` DATETIME DEFAULT NULL,
+  FOREIGN KEY (`divalidasi_oleh`) REFERENCES `user`(`id_user`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- DATA DUMMY INITIAL SEED
+INSERT INTO `user` (`id_user`, `nama_lengkap`, `email`, `no_telp`) VALUES
+(1, 'Abdul Latif', 'latif@imelda.ac.id', '08979851894'),
+(2, 'Dr. Dosen, Sp.PK', 'kepalalab@imelda.ac.id', '081260003344');
+
+-- Password default hash: "password123"
+INSERT INTO `login` (`id_login`, `id_user`, `username`, `password`, `role`) VALUES
+(1, 1, 'adminlab', '$2y$10$e0MYzXyjpJS7Pd0RVvHwHe1e8qS0Y9qWbC2aU7E3L0M0x1v9R8', 'Admin Lab'),
+(2, 2, 'kepalalab', '$2y$10$e0MYzXyjpJS7Pd0RVvHwHe1e8qS0Y9qWbC2aU7E3L0M0x1v9R8', 'Kepala Lab');
+
+INSERT INTO `data_master_alat` (`id_alat`, `nama_alat`, `kode_alat`, `asal_negara`, `harga_satuan`) VALUES
+('ALT-001', 'Rectal Touch Model', 'TSM-6702', 'China', 35000000.00),
+('ALT-002', 'Advanced Maternity Examination Model', 'TSM-4201', 'China', 87000000.00),
+('ALT-003', 'Comprehensive Gynecological Exam Model', 'TSM-4102', 'China', 51000000.00),
+('ALT-004', 'Breast Cancer Examination and Palpation Model', 'TSM-4301', 'China', 41000000.00),
+('ALT-005', 'Neonatal Endotracheal Intubation Model', 'TSM-1106', 'China', 21000000.00),
+('ALT-006', 'Multi-functional Intravenous Injection Arm', 'TSM-2103', 'China', 27000000.00),
+('ALT-007', 'Pintu Kayu (3 Unit)', 'INF-001', 'Indonesia', 1500000.00),
+('ALT-008', 'Jendela Kaca (5 Unit)', 'INF-002', 'Indonesia', 800000.00),
+('ALT-009', 'Meja Praktikum (3 Unit)', 'FUR-001', 'Indonesia', 3500000.00),
+('ALT-010', 'Meja Alat (2 Unit)', 'FUR-002', 'Indonesia', 2000000.00),
+('ALT-011', 'Kursi Kerja (25 Unit)', 'FUR-003', 'Indonesia', 450000.00),
+('ALT-012', 'Lampu Panjang (2 Unit)', 'ELE-001', 'Indonesia', 250000.00),
+('ALT-013', 'Lampu LED (3 Unit)', 'ELE-002', 'Indonesia', 150000.00),
+('ALT-014', 'AC (1 Unit)', 'ELE-003', 'Japan', 4500000.00),
+('ALT-015', 'Rak Mikroskop (1 Unit)', 'FUR-004', 'Indonesia', 1800000.00),
+('ALT-016', 'Draining Rack (1 Unit)', 'LAB-001', 'Germany', 1200000.00),
+('ALT-017', 'Wastafel (2 Unit)', 'INF-003', 'Indonesia', 1000000.00),
+('ALT-018', 'Timbangan Analitik (1 Unit)', 'LAB-002', 'Japan', 15000000.00),
+('ALT-019', 'Blender Laboratorium (1 Unit)', 'LAB-003', 'South Korea', 2500000.00),
+('ALT-020', 'Laboratory Brushes (1 Set)', 'LAB-004', 'China', 150000.00),
+('ALT-021', 'Lemari Asam (10 Unit)', 'LAB-005', 'Germany', 25000000.00),
+('ALT-022', 'Mikroskop Binokuler (7 Unit)', 'LAB-006', 'Japan', 12000000.00),
+('ALT-023', 'Beaker Glass (4 Unit)', 'LAB-007', 'Germany', 120000.00),
+('ALT-024', 'Gelas Ukur (1 Unit)', 'LAB-008', 'Germany', 150000.00),
+('ALT-025', 'Evaporating Dishes (2 Unit)', 'LAB-009', 'Germany', 200000.00),
+('ALT-026', 'Cawan Porselin (1 Unit)', 'LAB-010', 'Germany', 100000.00),
+('ALT-027', 'Lup / Kaca Pembesar (1 Unit)', 'LAB-011', 'China', 80000.00),
+('ALT-028', 'Papan Tulis (1 Unit)', 'FUR-005', 'Indonesia', 600000.00),
+('ALT-029', 'Lemari Asam Portabel (1 Unit)', 'LAB-012', 'Germany', 18000000.00),
+('ALT-030', 'Tong Sampah Medis (1 Unit)', 'SAN-001', 'Indonesia', 350000.00),
+('ALT-031', 'Tong Sampah Non Medis (1 Unit)', 'SAN-002', 'Indonesia', 150000.00),
+('ALT-032', 'Kandang Mencit (10 Kandang)', 'ANI-001', 'Indonesia', 250000.00),
+('ALT-033', 'Botol Minum Mencit (10 Botol)', 'ANI-002', 'Indonesia', 35000.00),
+('ALT-034', 'Sekam Kayu (2 Goni)', 'ANI-003', 'Indonesia', 50000.00);
+
+INSERT INTO `kondisi_inventarisir` (`id_inventaris`, `id_alat`, `tanggal_cek`, `kondisi`, `keterangan`, `id_user`) VALUES
+('1', 'ALT-001', '2026-08-01', 'Baik', 'Kondisi fisik utuh, sensor berfungsi normal.', 1),
+('2', 'ALT-002', '2026-08-01', 'Baik', 'Siap digunakan untuk praktikum mahasiswa.', 1),
+('3', 'ALT-003', '2026-08-02', 'Rusak', 'Komponen engsel sendi mengalami aus.', 1),
+('4', 'ALT-004', '2026-08-02', 'Baik', 'Sudah dibersihkan dan disimpan di lemari A2.', 1),
+('5', 'ALT-005', '2026-08-03', 'Baik', 'Selang intubasi steril.', 1),
+('6', 'ALT-006', '2026-08-03', 'Baik', 'Kondisi pembuluh darah sintetis tidak bocor.', 1);
+                </div>
+
+                <!-- TAB 3: PHP LOGIN -->
+                <div class="tab-pane fade" id="tab-php-login">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-dark text-light">
+                        <pre class="mb-0 text-light"><code id="phpLoginCodeBlock">&lt;?php
+// auth/proses_login.php - Validasi Login & Password Hash PDO
+session_start();
+require_once '../config/database.php';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = trim($_POST['username']);
+    $password = $_POST['password'];
+
+    // Prepared statement untuk cegah SQL Injection
+    $stmt = $pdo-&gt;prepare("SELECT l.*, u.nama_lengkap FROM login l JOIN user u ON l.id_user = u.id_user WHERE l.username = :username");
+    $stmt-&gt;execute(['username' =&gt; $username]);
+    $user = $stmt-&gt;fetch();
+
+    if ($user && password_verify($password, $user['password'])) {
+        $_SESSION['id_user']      = $user['id_user'];
+        $_SESSION['username']     = $user['username'];
+        $_SESSION['nama_lengkap'] = $user['nama_lengkap'];
+        $_SESSION['role']         = $user['role'];
+
+        header("Location: ../dashboard.php");
+        exit;
+    } else {
+        $_SESSION['error'] = "Username atau password salah!";
+        header("Location: login.php");
+        exit;
+    }
+}
+?&gt;</code></pre>
+                    </div>
+                </div>
+
+                <!-- TAB 4: README -->
+                <div class="tab-pane fade" id="tab-readme">
+                    <div class="card border-0 shadow-sm rounded-4 p-4">
+                        <h5 class="fw-bold text-success"><i class="bi bi-info-circle-fill me-2"></i>Panduan Instalasi XAMPP & Poin Penjelasan Sidang TA</h5>
+                        <ol class="lh-lg">
+                            <li><strong>Instalasi XAMPP:</strong> Buka XAMPP Control Panel, jalankan Apache dan MySQL.</li>
+                            <li><strong>Import Database:</strong> Buka <code>http://localhost/phpmyadmin</code>, buat database bernama <code>db_inventaris_lab</code>, lalu import file SQL di Tab 1.</li>
+                            <li><strong>Struktur Folder:</strong> Buat folder <code>inventaris-lab</code> di dalam <code>htdocs/</code> XAMPP dan salin file-file PHP di atas.</li>
+                            <li><strong>Penjelasan Pengendalian Internal saat Sidang:</strong>
+                                <ul>
+                                    <li>Sistem mengimplementasikan <strong>Pemisahan Tugas (Segregation of Duties)</strong>: Petugas Admin Lab melakukan pencatatan inventarisir fisik, sedangkan Kepala Lab memegang hak otorisasi validasi nilai aset.</li>
+                                    <li>Sistem mencatat <strong>Jejak Audit (Audit Trail)</strong> pada tabel <code>kondisi_inventarisir</code> yang menghubungkan foreign key <code>id_user</code> secara permanen tanpa menimpa histori lama.</li>
+                                </ul>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MODAL 1: TAMBAH / EDIT ALAT -->
+    <div class="modal fade" id="modalAlat" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold" id="modalAlatTitle"><i class="bi bi-box-seam me-2"></i>Tambah Alat Peraga / Manikin</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="formAlat" onsubmit="saveAlat(event)">
+                    <div class="modal-body p-4">
+                        <input type="hidden" id="formAlatId">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Kode Alat (Model / Seri)</label>
+                            <input type="text" id="formKodeAlat" class="form-control" placeholder="Contoh: TSM-6702" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Nama Alat Peraga / Manikin</label>
+                            <input type="text" id="formNamaAlat" class="form-control" placeholder="Contoh: Rectal Touch Model" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Asal Negara Pabrikan</label>
+                            <input type="text" id="formAsalNegara" class="form-control" placeholder="Contoh: China / Germany" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Harga Satuan (Rp)</label>
+                            <input type="number" id="formHargaSatuan" class="form-control" placeholder="35000000" min="0" required>
+                            <div class="form-text">Masukkan angka murni tanpa titik/koma.</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4"><i class="bi bi-save me-1"></i> Simpan Data</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: INPUT KONDISI ALAT -->
+    <div class="modal fade" id="modalKondisi" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-clipboard2-pulse me-2"></i>Pemeriksaan Fisik Alat</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="formKondisi" onsubmit="saveKondisi(event)">
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Pilih Alat Peraga</label>
+                            <select id="formSelectAlat" class="form-select" required>
+                                <!-- Populated via JS -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Tanggal Pengecekan</label>
+                            <input type="date" id="formTanggalCek" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Kondisi Fisik Hasil Cek</label>
+                            <select id="formKondisiFisik" class="form-select" required>
+                                <option value="Baik">Baik (Fungsi Normal)</option>
+                                <option value="Rusak">Rusak (Butuh Servis/Komponen)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Keterangan Catatan Pemeriksaan</label>
+                            <textarea id="formKeterangan" class="form-control" rows="3" placeholder="Deskripsikan kondisi fisik secara detail..." required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-success rounded-pill px-4"><i class="bi bi-check-lg me-1"></i> Simpan Catatan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap & App Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // APP STATE & DATA INITIALIZATION
+        let currentRole = 'Admin Lab'; // Default role: 'Admin Lab' or 'Kepala Lab'
+        let activeUser = {
+            id_user: 1,
+            nama_lengkap: 'Abdul Latif',
+            role: 'Admin Lab'
+        };
+
+        // Master Data Dummy (Initial state based on TA document & FK UIM Inventory)
+        let masterAlat = [
+            { id_alat: 'ALT-001', kode_alat: 'TSM-6702', nama_alat: 'Rectal Touch Model', asal_negara: 'China', harga_satuan: 35000000 },
+            { id_alat: 'ALT-002', kode_alat: 'TSM-4201', nama_alat: 'Advanced Maternity Examination Model', asal_negara: 'China', harga_satuan: 87000000 },
+            { id_alat: 'ALT-003', kode_alat: 'TSM-4102', nama_alat: 'Comprehensive Gynecological Exam Model', asal_negara: 'China', harga_satuan: 51000000 },
+            { id_alat: 'ALT-004', kode_alat: 'TSM-4301', nama_alat: 'Breast Cancer Examination and Palpation Model', asal_negara: 'China', harga_satuan: 41000000 },
+            { id_alat: 'ALT-005', kode_alat: 'TSM-1106', nama_alat: 'Neonatal Endotracheal Intubation Model', asal_negara: 'China', harga_satuan: 21000000 },
+            { id_alat: 'ALT-006', kode_alat: 'TSM-2103', nama_alat: 'Multi-functional Intravenous Injection Arm', asal_negara: 'China', harga_satuan: 27000000 },
+            { id_alat: 'ALT-007', kode_alat: 'INF-001', nama_alat: 'Pintu Kayu (3 Unit)', asal_negara: 'Indonesia', harga_satuan: 1500000 },
+            { id_alat: 'ALT-008', kode_alat: 'INF-002', nama_alat: 'Jendela Kaca (5 Unit)', asal_negara: 'Indonesia', harga_satuan: 800000 },
+            { id_alat: 'ALT-009', kode_alat: 'FUR-001', nama_alat: 'Meja Praktikum (3 Unit)', asal_negara: 'Indonesia', harga_satuan: 3500000 },
+            { id_alat: 'ALT-010', kode_alat: 'FUR-002', nama_alat: 'Meja Alat (2 Unit)', asal_negara: 'Indonesia', harga_satuan: 2000000 },
+            { id_alat: 'ALT-011', kode_alat: 'FUR-003', nama_alat: 'Kursi Kerja (25 Unit)', asal_negara: 'Indonesia', harga_satuan: 450000 },
+            { id_alat: 'ALT-012', kode_alat: 'ELE-001', nama_alat: 'Lampu Panjang (2 Unit)', asal_negara: 'Indonesia', harga_satuan: 250000 },
+            { id_alat: 'ALT-013', kode_alat: 'ELE-002', nama_alat: 'Lampu LED (3 Unit)', asal_negara: 'Indonesia', harga_satuan: 150000 },
+            { id_alat: 'ALT-014', kode_alat: 'ELE-003', nama_alat: 'AC (1 Unit)', asal_negara: 'Japan', harga_satuan: 4500000 },
+            { id_alat: 'ALT-015', kode_alat: 'FUR-004', nama_alat: 'Rak Mikroskop (1 Unit)', asal_negara: 'Indonesia', harga_satuan: 1800000 },
+            { id_alat: 'ALT-016', kode_alat: 'LAB-001', nama_alat: 'Draining Rack (1 Unit)', asal_negara: 'Germany', harga_satuan: 1200000 },
+            { id_alat: 'ALT-017', kode_alat: 'INF-003', nama_alat: 'Wastafel (2 Unit)', asal_negara: 'Indonesia', harga_satuan: 1000000 },
+            { id_alat: 'ALT-018', kode_alat: 'LAB-002', nama_alat: 'Timbangan Analitik (1 Unit)', asal_negara: 'Japan', harga_satuan: 15000000 },
+            { id_alat: 'ALT-019', kode_alat: 'LAB-003', nama_alat: 'Blender Laboratorium (1 Unit)', asal_negara: 'South Korea', harga_satuan: 2500000 },
+            { id_alat: 'ALT-020', kode_alat: 'LAB-004', nama_alat: 'Laboratory Brushes (1 Set)', asal_negara: 'China', harga_satuan: 150000 },
+            { id_alat: 'ALT-021', kode_alat: 'LAB-005', nama_alat: 'Lemari Asam (10 Unit)', asal_negara: 'Germany', harga_satuan: 25000000 },
+            { id_alat: 'ALT-022', kode_alat: 'LAB-006', nama_alat: 'Mikroskop Binokuler (7 Unit)', asal_negara: 'Japan', harga_satuan: 12000000 },
+            { id_alat: 'ALT-023', kode_alat: 'LAB-007', nama_alat: 'Beaker Glass (4 Unit)', asal_negara: 'Germany', harga_satuan: 120000 },
+            { id_alat: 'ALT-024', kode_alat: 'LAB-008', nama_alat: 'Gelas Ukur (1 Unit)', asal_negara: 'Germany', harga_satuan: 150000 },
+            { id_alat: 'ALT-025', kode_alat: 'LAB-009', nama_alat: 'Evaporating Dishes (2 Unit)', asal_negara: 'Germany', harga_satuan: 200000 },
+            { id_alat: 'ALT-026', kode_alat: 'LAB-010', nama_alat: 'Cawan Porselin (1 Unit)', asal_negara: 'Germany', harga_satuan: 100000 },
+            { id_alat: 'ALT-027', kode_alat: 'LAB-011', nama_alat: 'Lup / Kaca Pembesar (1 Unit)', asal_negara: 'China', harga_satuan: 80000 },
+            { id_alat: 'ALT-028', kode_alat: 'FUR-005', nama_alat: 'Papan Tulis (1 Unit)', asal_negara: 'Indonesia', harga_satuan: 600000 },
+            { id_alat: 'ALT-029', kode_alat: 'LAB-012', nama_alat: 'Lemari Asam Portabel (1 Unit)', asal_negara: 'Germany', harga_satuan: 18000000 },
+            { id_alat: 'ALT-030', kode_alat: 'SAN-001', nama_alat: 'Tong Sampah Medis (1 Unit)', asal_negara: 'Indonesia', harga_satuan: 350000 },
+            { id_alat: 'ALT-031', kode_alat: 'SAN-002', nama_alat: 'Tong Sampah Non Medis (1 Unit)', asal_negara: 'Indonesia', harga_satuan: 150000 },
+            { id_alat: 'ALT-032', kode_alat: 'ANI-001', nama_alat: 'Kandang Mencit (10 Kandang)', asal_negara: 'Indonesia', harga_satuan: 250000 },
+            { id_alat: 'ALT-033', kode_alat: 'ANI-002', nama_alat: 'Botol Minum Mencit (10 Botol)', asal_negara: 'Indonesia', harga_satuan: 35000 },
+            { id_alat: 'ALT-034', kode_alat: 'ANI-003', nama_alat: 'Sekam Kayu (2 Goni)', asal_negara: 'Indonesia', harga_satuan: 50000 }
+        ];
+
+        let kondisiLogs = [
+            { id_inventaris: 1, id_alat: 'ALT-001', tanggal_cek: '2026-08-01', kondisi: 'Baik', keterangan: 'Kondisi fisik utuh, sensor berfungsi normal.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 2, id_alat: 'ALT-002', tanggal_cek: '2026-08-01', kondisi: 'Baik', keterangan: 'Siap digunakan untuk praktikum mahasiswa.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 3, id_alat: 'ALT-003', tanggal_cek: '2026-08-02', kondisi: 'Rusak', keterangan: 'Komponen engsel sendi mengalami aus.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 4, id_alat: 'ALT-004', tanggal_cek: '2026-08-02', kondisi: 'Baik', keterangan: 'Sudah dibersihkan dan disimpan di lemari A2.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 5, id_alat: 'ALT-005', tanggal_cek: '2026-08-03', kondisi: 'Baik', keterangan: 'Selang intubasi steril.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 6, id_alat: 'ALT-006', tanggal_cek: '2026-08-03', kondisi: 'Baik', keterangan: 'Kondisi pembuluh darah sintetis tidak bocor.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 7, id_alat: 'ALT-007', tanggal_cek: '2026-08-04', kondisi: 'Baik', keterangan: 'Kondisi pintu terpasang dengan baik dan kokoh.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 8, id_alat: 'ALT-008', tanggal_cek: '2026-08-04', kondisi: 'Baik', keterangan: 'Kaca bersih tanpa retak.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 9, id_alat: 'ALT-009', tanggal_cek: '2026-08-04', kondisi: 'Baik', keterangan: 'Meja praktikum stabil dan bersih.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 10, id_alat: 'ALT-010', tanggal_cek: '2026-08-04', kondisi: 'Baik', keterangan: 'Meja penataan alat siap pakai.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 11, id_alat: 'ALT-011', tanggal_cek: '2026-08-05', kondisi: 'Baik', keterangan: 'Kursi kerja lengkap dan nyaman.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 12, id_alat: 'ALT-012', tanggal_cek: '2026-08-05', kondisi: 'Baik', keterangan: 'Lampu panjang menyala terang.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 13, id_alat: 'ALT-013', tanggal_cek: '2026-08-05', kondisi: 'Baik', keterangan: 'Lampu LED hemat energi berfungsi normal.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 14, id_alat: 'ALT-014', tanggal_cek: '2026-08-05', kondisi: 'Baik', keterangan: 'Suhu dingin maksimal dan rutin di-service.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 15, id_alat: 'ALT-015', tanggal_cek: '2026-08-06', kondisi: 'Baik', keterangan: 'Rak mikroskop terkunci aman.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 16, id_alat: 'ALT-016', tanggal_cek: '2026-08-06', kondisi: 'Baik', keterangan: 'Draining rack bersih dan kering.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 17, id_alat: 'ALT-017', tanggal_cek: '2026-08-06', kondisi: 'Baik', keterangan: 'Saluran wastafel lancar tidak tersumbat.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 18, id_alat: 'ALT-018', tanggal_cek: '2026-08-07', kondisi: 'Baik', keterangan: 'Timbangan analitik terkalibrasi presisi.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 19, id_alat: 'ALT-019', tanggal_cek: '2026-08-07', kondisi: 'Baik', keterangan: 'Blender berfungsi normal untuk sampel.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 20, id_alat: 'ALT-020', tanggal_cek: '2026-08-07', kondisi: 'Baik', keterangan: 'Kuas pembersih tabung dalam keadaan bersih.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 21, id_alat: 'ALT-021', tanggal_cek: '2026-08-08', kondisi: 'Baik', keterangan: 'Lemari asam exhaust fan berputar kuat.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 22, id_alat: 'ALT-022', tanggal_cek: '2026-08-08', kondisi: 'Baik', keterangan: 'Lensa mikroskop jernih dan bebas jamur.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 23, id_alat: 'ALT-023', tanggal_cek: '2026-08-08', kondisi: 'Baik', keterangan: 'Beaker glass utuh tanpa retakan.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 24, id_alat: 'ALT-024', tanggal_cek: '2026-08-08', kondisi: 'Baik', keterangan: 'Skala ukur jelas dan presisi.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 25, id_alat: 'ALT-025', tanggal_cek: '2026-08-09', kondisi: 'Baik', keterangan: 'Cawan penguap tahan panas.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 26, id_alat: 'ALT-026', tanggal_cek: '2026-08-09', kondisi: 'Baik', keterangan: 'Cawan porselin utuh.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 27, id_alat: 'ALT-027', tanggal_cek: '2026-08-09', kondisi: 'Baik', keterangan: 'Lup kaca pembesar bening.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 28, id_alat: 'ALT-028', tanggal_cek: '2026-08-09', kondisi: 'Baik', keterangan: 'Papan tulis bersih dan siap pakai.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 29, id_alat: 'ALT-029', tanggal_cek: '2026-08-10', kondisi: 'Baik', keterangan: 'Lemari asam portabel siap pakai.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 30, id_alat: 'ALT-030', tanggal_cek: '2026-08-10', kondisi: 'Baik', keterangan: 'Tong sampah medis tertutup rapat.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 31, id_alat: 'ALT-031', tanggal_cek: '2026-08-10', kondisi: 'Baik', keterangan: 'Tong sampah non medis bersih.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 32, id_alat: 'ALT-032', tanggal_cek: '2026-08-10', kondisi: 'Baik', keterangan: 'Kandang mencit higienis dan terawat.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 33, id_alat: 'ALT-033', tanggal_cek: '2026-08-10', kondisi: 'Baik', keterangan: 'Botol minum mencit berfungsi baik.', id_user: 1, nama_user: 'Abdul Latif' },
+            { id_inventaris: 34, id_alat: 'ALT-034', tanggal_cek: '2026-08-10', kondisi: 'Baik', keterangan: 'Sekam kayu kering tersimpan rapi.', id_user: 1, nama_user: 'Abdul Latif' }
+        ];
+
+        let laporanAset = {
+            id_laporan: 1,
+            periode: 'Agustus 2026',
+            status_validasi: 'Menunggu Validasi', // 'Menunggu Validasi' or 'Divalidasi Kepala Lab'
+            divalidasi_oleh: null,
+            tanggal_validasi: null
+        };
+
+        let userList = [
+            { id_user: 1, nama_lengkap: 'Abdul Latif', username: 'adminlab', no_telp: '08979851894', role: 'Admin Lab', created_at: '2026-08-01' },
+            { id_user: 2, nama_lengkap: 'Dr. Dosen, Sp.PK', username: 'kepalalab', no_telp: '081260003344', role: 'Kepala Lab', created_at: '2026-08-01' }
+        ];
+
+        let chartInstance = null;
+
+        // INITIALIZE APP ON LOAD
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFromLocalStorage();
+            updateRoleUI();
+            renderDashboard();
+            renderAlatTable();
+            renderKondisiTable();
+            renderLaporan();
+            renderUserTable();
+
+            // Set default date picker
+            document.getElementById('formTanggalCek').value = new Date().toISOString().split('T')[0];
+        });
+
+        function saveToLocalStorage() {
+            localStorage.setItem('uim_masterAlat', JSON.stringify(masterAlat));
+            localStorage.setItem('uim_kondisiLogs', JSON.stringify(kondisiLogs));
+            localStorage.setItem('uim_laporanAset', JSON.stringify(laporanAset));
+        }
+
+        function loadFromLocalStorage() {
+            const savedAlat = localStorage.getItem('uim_masterAlat');
+            if (savedAlat) {
+                const parsed = JSON.parse(savedAlat);
+                if (parsed.length >= masterAlat.length) masterAlat = parsed;
+            }
+
+            const savedKondisi = localStorage.getItem('uim_kondisiLogs');
+            if (savedKondisi) {
+                const parsed = JSON.parse(savedKondisi);
+                if (parsed.length >= kondisiLogs.length) kondisiLogs = parsed;
+            }
+
+            const savedLaporan = localStorage.getItem('uim_laporanAset');
+            if (savedLaporan) laporanAset = JSON.parse(savedLaporan);
+        }
+
+        function resetDemoData() {
+            localStorage.clear();
+            location.reload();
+        }
+
+        // VIEW ROUTING
+        function showView(viewName) {
+            document.querySelectorAll('.app-view').forEach(el => el.classList.add('d-none'));
+            document.querySelectorAll('.sidebar .nav-link').forEach(el => el.classList.remove('active'));
+
+            const targetView = document.getElementById(`view-${viewName}`);
+            const targetLink = document.getElementById(`link-${viewName}`);
+
+            if (targetView) targetView.classList.remove('d-none');
+            if (targetLink) targetLink.classList.add('active');
+
+            if (viewName === 'dashboard') renderDashboard();
+            if (viewName === 'laporan') renderLaporan();
+        }
+
+        // ROLE SWITCHING & INTERNAL CONTROL PERMISSIONS
+        function switchRole(newRole) {
+            currentRole = newRole;
+            if (newRole === 'Admin Lab') {
+                activeUser = { id_user: 1, nama_lengkap: 'Abdul Latif', role: 'Admin Lab' };
+            } else {
+                activeUser = { id_user: 2, nama_lengkap: 'Dr. Dosen, Sp.PK', role: 'Kepala Lab' };
+            }
+            updateRoleUI();
+            renderDashboard();
+            renderAlatTable();
+            renderLaporan();
+        }
+
+        function updateRoleUI() {
+            document.getElementById('activeUserName').textContent = activeUser.nama_lengkap;
+            document.getElementById('activeRoleLabel').textContent = activeUser.role;
+            document.getElementById('roleBadgeDisplay').textContent = `Role: ${activeUser.role}`;
+
+            const icText = document.getElementById('icBannerText');
+            const btnTambahAlat = document.getElementById('btnTambahAlat');
+            const btnTambahKondisi = document.getElementById('btnTambahKondisi');
+            const btnValidasi = document.getElementById('btnValidasiKepalaLab');
+
+            if (currentRole === 'Admin Lab') {
+                icText.innerHTML = `Anda bertindak sebagai <strong class="text-primary">Admin Lab</strong>. Berhak melakukan CRUD Master Alat & Cek Fisik. Membutuhkan otorisasi <strong class="text-success">Kepala Lab</strong> untuk laporan final.`;
+                btnTambahAlat.classList.remove('d-none');
+                btnTambahKondisi.classList.remove('d-none');
+                btnValidasi.classList.add('d-none');
+            } else {
+                icText.innerHTML = `Anda bertindak sebagai <strong class="text-success">Kepala Lab</strong>. Memiliki otorisasi bertingkat untuk memvalidasi/menyetujui Laporan Nilai Aset Laboratorium Kedokteran.`;
+                btnTambahAlat.classList.add('d-none');
+                btnTambahKondisi.classList.add('d-none');
+                if (laporanAset.status_validasi === 'Menunggu Validasi') {
+                    btnValidasi.classList.remove('d-none');
+                } else {
+                    btnValidasi.classList.add('d-none');
+                }
+            }
+        }
+
+        // DASHBOARD COMPUTATIONS & CHART
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number);
+        }
+
+        function getLatestKondisiMap() {
+            // Map tool ID to its latest condition
+            const map = {};
+            kondisiLogs.forEach(log => {
+                map[log.id_alat] = log.kondisi;
+            });
+            return map;
+        }
+
+        function renderDashboard() {
+            const totalAlat = masterAlat.length;
+            const totalNilai = masterAlat.reduce((sum, item) => sum + Number(item.harga_satuan), 0);
+            
+            const kondisiMap = getLatestKondisiMap();
+            let baikCount = 0;
+            let rusakCount = 0;
+
+            masterAlat.forEach(item => {
+                const st = kondisiMap[item.id_alat] || 'Baik';
+                if (st === 'Baik') baikCount++;
+                else rusakCount++;
+            });
+
+            document.getElementById('dashTotalAlat').textContent = totalAlat;
+            document.getElementById('dashTotalNilai').textContent = formatRupiah(totalNilai);
+            document.getElementById('dashKondisiBaik').textContent = baikCount;
+            document.getElementById('dashKondisiRusak').textContent = rusakCount;
+
+            const percentBaik = totalAlat > 0 ? Math.round((baikCount / totalAlat) * 100) : 0;
+            document.getElementById('dashPercentBaik').textContent = `${percentBaik}% Siap Pakai`;
+
+            // Report Status Box
+            document.getElementById('dashReportStatus').textContent = laporanAset.status_validasi;
+            if (laporanAset.status_validasi === 'Divalidasi Kepala Lab') {
+                document.getElementById('dashReportStatus').className = 'badge badge-approved';
+                document.getElementById('dashReportProgress').className = 'progress-bar bg-success';
+                document.getElementById('dashReportProgress').style.width = '100%';
+                document.getElementById('dashActionBox').className = 'alert alert-success mb-0 border-0 d-flex align-items-center gap-2';
+                document.getElementById('dashActionText').innerHTML = `Laporan telah resmi <strong class="text-success">DIVALIDASI</strong> oleh Kepala Lab pada ${laporanAset.tanggal_validasi || '2026-08-20'}.`;
+                document.getElementById('pendingBadgeNav').classList.add('d-none');
+            } else {
+                document.getElementById('dashReportStatus').className = 'badge badge-pending';
+                document.getElementById('dashReportProgress').className = 'progress-bar bg-warning progress-bar-striped progress-bar-animated';
+                document.getElementById('dashReportProgress').style.width = '50%';
+                document.getElementById('dashActionBox').className = 'alert alert-warning mb-0 border-0 d-flex align-items-center gap-2';
+                document.getElementById('dashActionText').textContent = 'Laporan nilai aset masih berada pada status draft (Menunggu Otorisasi Validasi Kepala Lab).';
+                document.getElementById('pendingBadgeNav').classList.remove('d-none');
+            }
+
+            // Render Chart.js
+            renderKondisiChart(baikCount, rusakCount);
+        }
+
+        function renderKondisiChart(baik, rusak) {
+            const ctx = document.getElementById('chartKondisi').getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Kondisi Baik (Siap Pakai)', 'Kondisi Rusak (Butuh Perbaikan)'],
+                    datasets: [{
+                        data: [baik, rusak],
+                        backgroundColor: ['#15803d', '#dc2626'],
+                        hoverOffset: 6,
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+
+        function refreshDashboard() {
+            renderDashboard();
+        }
+
+        // DATA MASTER ALAT CRUD
+        function renderAlatTable() {
+            const searchQuery = document.getElementById('searchAlatInput').value.toLowerCase();
+            const tbody = document.getElementById('tableAlatBody');
+            tbody.innerHTML = '';
+
+            const filtered = masterAlat.filter(item => 
+                item.nama_alat.toLowerCase().includes(searchQuery) ||
+                item.kode_alat.toLowerCase().includes(searchQuery)
+            );
+
+            document.getElementById('countAlatText').textContent = filtered.length;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">Data alat tidak ditemukan.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="ps-3"><span class="badge bg-light text-dark border font-monospace">${item.id_alat}</span></td>
+                    <td><strong class="text-primary">${item.kode_alat}</strong></td>
+                    <td class="fw-semibold">${item.nama_alat}</td>
+                    <td><i class="bi bi-globe me-1 text-muted"></i>${item.asal_negara}</td>
+                    <td class="text-end fw-bold text-success">${formatRupiah(item.harga_satuan)}</td>
+                    <td class="text-center no-print">
+                        ${currentRole === 'Admin Lab' ? `
+                            <button class="btn btn-sm btn-outline-primary me-1" onclick="openModalEditAlat('${item.id_alat}')" title="Edit Data"><i class="bi bi-pencil-square"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteAlat('${item.id_alat}')" title="Hapus"><i class="bi bi-trash"></i></button>
+                        ` : '<span class="text-muted small fst-italic">Read-Only</span>'}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function openModalTambahAlat() {
+            document.getElementById('modalAlatTitle').innerHTML = '<i class="bi bi-box-seam me-2"></i>Tambah Alat Peraga Baru';
+            document.getElementById('formAlatId').value = '';
+            document.getElementById('formKodeAlat').value = 'TSM-' + Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('formNamaAlat').value = '';
+            document.getElementById('formAsalNegara').value = 'China';
+            document.getElementById('formHargaSatuan').value = '';
+            
+            const modal = new bootstrap.Modal(document.getElementById('modalAlat'));
+            modal.show();
+        }
+
+        function openModalEditAlat(id) {
+            const item = masterAlat.find(x => x.id_alat === id);
+            if (!item) return;
+
+            document.getElementById('modalAlatTitle').innerHTML = '<i class="bi bi-pencil-square me-2"></i>Edit Master Alat';
+            document.getElementById('formAlatId').value = item.id_alat;
+            document.getElementById('formKodeAlat').value = item.kode_alat;
+            document.getElementById('formNamaAlat').value = item.nama_alat;
+            document.getElementById('formAsalNegara').value = item.asal_negara;
+            document.getElementById('formHargaSatuan').value = item.harga_satuan;
+
+            const modal = new bootstrap.Modal(document.getElementById('modalAlat'));
+            modal.show();
+        }
+
+        function saveAlat(event) {
+            event.preventDefault();
+            const id = document.getElementById('formAlatId').value;
+            const kode = document.getElementById('formKodeAlat').value.trim();
+            const nama = document.getElementById('formNamaAlat').value.trim();
+            const negara = document.getElementById('formAsalNegara').value.trim();
+            const harga = parseFloat(document.getElementById('formHargaSatuan').value);
+
+            if (id) {
+                // Update
+                const index = masterAlat.findIndex(x => x.id_alat === id);
+                if (index !== -1) {
+                    masterAlat[index] = { ...masterAlat[index], kode_alat: kode, nama_alat: nama, asal_negara: negara, harga_satuan: harga };
+                }
+            } else {
+                // Insert New
+                const newId = 'ALT-00' + (masterAlat.length + 1);
+                masterAlat.push({ id_alat: newId, kode_alat: kode, nama_alat: nama, asal_negara: negara, harga_satuan: harga });
+
+                // Add default condition inspection
+                kondisiLogs.unshift({
+                    id_inventaris: kondisiLogs.length + 1,
+                    id_alat: newId,
+                    tanggal_cek: new Date().toISOString().split('T')[0],
+                    kondisi: 'Baik',
+                    keterangan: 'Penerimaan alat baru dalam kondisi prima.',
+                    id_user: activeUser.id_user,
+                    nama_user: activeUser.nama_lengkap
+                });
+            }
+
+            saveToLocalStorage();
+            renderAlatTable();
+            renderKondisiTable();
+            renderDashboard();
+
+            const modalEl = document.getElementById('modalAlat');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide();
+        }
+
+        function deleteAlat(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus data master alat ini?')) {
+                masterAlat = masterAlat.filter(x => x.id_alat !== id);
+                saveToLocalStorage();
+                renderAlatTable();
+                renderDashboard();
+            }
+        }
+
+        // INVENTARISIR & KONDISI LOGS
+        function renderKondisiTable() {
+            const tbody = document.getElementById('tableKondisiBody');
+            tbody.innerHTML = '';
+
+            kondisiLogs.forEach((item, index) => {
+                const alatInfo = masterAlat.find(a => a.id_alat === item.id_alat) || { nama_alat: item.id_alat, kode_alat: '' };
+                const badgeClass = item.kondisi === 'Baik' ? 'badge-baik' : 'badge-rusak';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="ps-3">${index + 1}</td>
+                    <td class="fw-semibold text-muted">${item.tanggal_cek}</td>
+                    <td><strong>${alatInfo.nama_alat}</strong> <span class="badge bg-light text-primary border ms-1">${alatInfo.kode_alat}</span></td>
+                    <td><span class="badge ${badgeClass}"><i class="bi bi-${item.kondisi === 'Baik' ? 'check' : 'x'}-circle me-1"></i>${item.kondisi}</span></td>
+                    <td class="small text-secondary">${item.keterangan}</td>
+                    <td><span class="badge bg-secondary-subtle text-secondary border">${item.nama_user || 'Petugas Lab'}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function openModalTambahKondisi() {
+            const select = document.getElementById('formSelectAlat');
+            select.innerHTML = '';
+
+            masterAlat.forEach(alat => {
+                const opt = document.createElement('option');
+                opt.value = alat.id_alat;
+                opt.textContent = `${alat.nama_alat} (${alat.kode_alat})`;
+                select.appendChild(opt);
+            });
+
+            const modal = new bootstrap.Modal(document.getElementById('modalKondisi'));
+            modal.show();
+        }
+
+        function saveKondisi(event) {
+            event.preventDefault();
+            const id_alat = document.getElementById('formSelectAlat').value;
+            const tanggal_cek = document.getElementById('formTanggalCek').value;
+            const kondisi = document.getElementById('formKondisiFisik').value;
+            const keterangan = document.getElementById('formKeterangan').value.trim();
+
+            kondisiLogs.unshift({
+                id_inventaris: kondisiLogs.length + 1,
+                id_alat: id_alat,
+                tanggal_cek: tanggal_cek,
+                kondisi: kondisi,
+                keterangan: keterangan,
+                id_user: activeUser.id_user,
+                nama_user: activeUser.nama_lengkap
+            });
+
+            saveToLocalStorage();
+            renderKondisiTable();
+            renderDashboard();
+
+            const modalEl = document.getElementById('modalKondisi');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide();
+        }
+
+        // LAPORAN NILAI ASET & INTERNAL CONTROL AUTHORIZATION
+        function renderLaporan() {
+            const totalAlat = masterAlat.length;
+            const totalNilai = masterAlat.reduce((sum, item) => sum + Number(item.harga_satuan), 0);
+            const kondisiMap = getLatestKondisiMap();
+
+            let baikCount = 0;
+            masterAlat.forEach(i => { if ((kondisiMap[i.id_alat] || 'Baik') === 'Baik') baikCount++; });
+
+            document.getElementById('laporanCountAlat').textContent = `${totalAlat} Unit`;
+            document.getElementById('laporanTotalNilai').textContent = formatRupiah(totalNilai);
+            document.getElementById('laporanKondisiBaik').textContent = `${baikCount} Unit`;
+            document.getElementById('footerTotalNilai').textContent = formatRupiah(totalNilai);
+
+            const tbody = document.getElementById('tableLaporanDetail');
+            tbody.innerHTML = '';
+
+            masterAlat.forEach((item, index) => {
+                const st = kondisiMap[item.id_alat] || 'Baik';
+                const badgeClass = st === 'Baik' ? 'badge-baik' : 'badge-rusak';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td><strong class="text-primary">${item.kode_alat}</strong></td>
+                    <td class="fw-semibold">${item.nama_alat}</td>
+                    <td>${item.asal_negara}</td>
+                    <td><span class="badge ${badgeClass}">${st}</span></td>
+                    <td class="text-end font-monospace">${formatRupiah(item.harga_satuan)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Update Authorization Badge in Report
+            const badgeValidasi = document.getElementById('badgeStatusValidasiLaporan');
+            const sigBox = document.getElementById('signatureKepalaLab');
+
+            if (laporanAset.status_validasi === 'Divalidasi Kepala Lab') {
+                badgeValidasi.textContent = 'Divalidasi Kepala Lab';
+                badgeValidasi.className = 'badge badge-approved px-3 py-2 fs-6';
+                sigBox.className = 'badge bg-success text-white border p-2';
+                sigBox.innerHTML = `<i class="bi bi-check-seal-fill me-1"></i> DIVALIDASI DIGITAL<br><small style="font-size: 0.7rem;">${laporanAset.tanggal_validasi || '2026-08-20'}</small>`;
+            } else {
+                badgeValidasi.textContent = 'Menunggu Validasi';
+                badgeValidasi.className = 'badge badge-pending px-3 py-2 fs-6';
+                sigBox.className = 'badge bg-warning-subtle text-warning-emphasis border border-warning p-2';
+                sigBox.innerHTML = `<i class="bi bi-clock me-1"></i> Menunggu Otorisasi`;
+            }
+        }
+
+        function validasiLaporanAlert() {
+            if (currentRole !== 'Kepala Lab') {
+                alert('Akses Ditolak! Hanya Kepala Lab yang dapat melakukan validasi pengendalian internal.');
+                return;
+            }
+
+            laporanAset.status_validasi = 'Divalidasi Kepala Lab';
+            laporanAset.divalidasi_oleh = activeUser.id_user;
+            laporanAset.tanggal_validasi = new Date().toLocaleString('id-ID');
+
+            saveToLocalStorage();
+            updateRoleUI();
+            renderDashboard();
+            renderLaporan();
+        }
+
+        // USER MANAGEMENT TABLE
+        function renderUserTable() {
+            const tbody = document.getElementById('tableUserBody');
+            tbody.innerHTML = '';
+
+            userList.forEach(user => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="ps-3"><span class="badge bg-light text-dark border font-monospace">USR-00${user.id_user}</span></td>
+                    <td class="fw-bold">${user.nama_lengkap}</td>
+                    <td class="font-monospace text-primary">${user.username}</td>
+                    <td>${user.no_telp}</td>
+                    <td><span class="badge ${user.role === 'Admin Lab' ? 'bg-primary' : 'bg-success'}">${user.role}</span></td>
+                    <td class="text-muted small">${user.created_at}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // UTILITY FUNCTIONS
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Kode SQL berhasil disalin ke clipboard!');
+            });
+        }
+    </script>
+</body>
+</html>
